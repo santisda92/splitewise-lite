@@ -1,0 +1,6 @@
+{
+  "appId": "com.santi.splitwiselite",
+  "appName": "Splitwise Lite",
+  "webDir": "dist",
+  "server": { "androidScheme": "https" }
+}
