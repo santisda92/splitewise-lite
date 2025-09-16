@@ -296,29 +296,30 @@ export default function App() {
     reader.readAsText(file)
   }
 
-  // ---- Payment helpers (WhatsApp + App intents) ----
-  const waLink = (phone, text) => phone ? `https://wa.me/57${phone}?text=${encodeURIComponent(text)}` : null
-  const payButtons = (fromId, toId, amountBase) => {
-    const payer = nameOf(fromId)
-    const payee = nameOf(toId)
-    const phone = phoneOf(toId)
-    const msg = `${payer} → ${payee}: ${amountBase.toFixed(ledger.decimals)} ${ledger.baseCurrency} (Splitwise-Lite)`
-    const wa = waLink(phone, msg)
+// ---- Payment helpers (WhatsApp only; send to the person who OWES) ----
+const waLink = (phone, text) => phone ? `https://wa.me/57${phone}?text=${encodeURIComponent(text)}` : null
 
-    return (
-      <div className="flex gap-2 items-center">
-        {wa ? <QRButton label={t(lang,'whatsapp')} href={wa} /> : <span className="text-xs text-slate-500 dark:text-slate-400">{t(lang,'askPhone')}</span>}
-        <button className="text-xs px-2 py-1 rounded bg-fuchsia-600 hover:bg-fuchsia-500 text-white"
-          onClick={() => openAndroidApp('com.banlinea.nequi', 'https://play.google.com/store/apps/details?id=com.banlinea.nequi')}>
-          {t(lang,'nequi')}
-        </button>
-        <button className="text-xs px-2 py-1 rounded bg-red-600 hover:bg-red-500 text-white"
-          onClick={() => openAndroidApp('com.davivienda.daviplataapp', 'https://play.google.com/store/apps/details?id=com.davivienda.daviplataapp')}>
-          {t(lang,'daviplata')}
-        </button>
-      </div>
-    )
-  }
+const payButtons = (fromId, toId, amountBase) => {
+  // fromId = debtor, toId = collector
+  const debtor = nameOf(fromId)
+  const collector = nameOf(toId)
+  const debtorPhone = phoneOf(fromId) // now sends to the person who owes
+  const msg = `${debtor} owes ${collector}: ${amountBase.toFixed(ledger.decimals)} ${ledger.baseCurrency} (Splitwise-Lite)`
+  const wa = waLink(debtorPhone, msg)
+
+  return (
+    <div className="flex gap-2 items-center">
+      {wa ? (
+        <QRButton label={t(lang,'whatsapp')} href={wa} />
+      ) : (
+        <span className="text-xs text-slate-500 dark:text-slate-400">
+          {t(lang,'askPhone')}
+        </span>
+      )}
+    </div>
+  )
+}
+
 
   if (!ledger) return <div className="p-6 text-center">No ledger. Create one to begin.</div>
 
