@@ -19,14 +19,17 @@ jobs:
           node-version: '20'
 
       - name: Install deps
-        run: npm ci
+        run: npm install
 
       - name: Build web (Vite)
         run: npm run build
 
-      - name: Add Capacitor Android
+      - name: Install Capacitor tooling
+        run: npm i -D @capacitor/cli @capacitor/android
+
+      - name: Sync Android project
         run: |
-          npm i -D @capacitor/cli @capacitor/android
+          npx cap add android || true
           npx cap sync android
 
       - name: Setup Java 17
